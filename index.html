@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Card Saga - Responsive Edition</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <div id="phase-banner" class="phase-banner-hidden">MAIN PHASE</div>
@@ -14,25 +16,29 @@
         <h1 id="game-title">CARD SAGA</h1>
         <div class="menu-buttons">
             <button class="game-btn" id="btn-start">Start Menu</button>
-            <button class="game-btn" id="btn-exit" style="background: linear-gradient(45deg, #4e4e50, #1a1a1d);">Exit</button>
+            <button class="game-btn" id="btn-exit"
+                style="background: linear-gradient(45deg, #4e4e50, #1a1a1d);">Exit</button>
         </div>
     </div>
 
     <div id="main-ui" class="hidden">
         <div id="ui-header">
-            <button class="game-btn" id="btn-back-to-login" style="padding: 5px 15px; font-size: 0.8rem;">Back to Title</button>
+            <button class="game-btn" id="btn-back-to-login" style="padding: 5px 15px; font-size: 0.8rem;">Back to
+                Title</button>
             <h2>Main Menu Hub</h2>
             <div id="player-info">Player: Guest123 | Gold: 1000</div>
         </div>
         <div id="ui-content">
-            <button class="game-btn" id="btn-open-deck-editor" style="background: linear-gradient(45deg, #2980b9, #2c3e50);">Deck Editor</button>
             <button class="game-btn" id="btn-go-battle">Find Battle!</button>
+            <button class="game-btn" id="btn-open-deck-editor"
+                style="background: linear-gradient(45deg, #2980b9, #2c3e50);">Deck Editor</button>
         </div>
     </div>
 
     <div id="deck-editor-page" class="hidden">
         <div id="ui-header">
-            <button class="game-btn" id="btn-back-from-deck" style="padding: 5px 15px; font-size: 0.8rem;">Save & Back</button>
+            <button class="game-btn" id="btn-back-from-deck" style="padding: 5px 15px; font-size: 0.8rem;">Save &
+                Back</button>
             <h2>Deck Builder</h2>
             <div id="deck-count-info" style="font-size: 1.2rem; font-weight: bold; color: #f1c40f;">Cards: 0/10</div>
         </div>
@@ -48,12 +54,19 @@
     </div>
 
     <div id="gameplay-page" class="hidden">
-        <button class="game-btn back-btn-anchor" id="btn-back-to-ui" style="padding: 5px 15px; font-size: 0.8rem;">Quit Match</button>
+        <button class="game-btn back-btn-anchor" id="btn-back-to-ui" style="padding: 5px 15px; font-size: 0.8rem;">Quit
+            Match</button>
 
-        <div id="enemy-hand-section"><div id="enemy-hand"></div></div>
+        <div id="enemy-hand-section">
+            <div id="enemy-hand"></div>
+        </div>
 
         <div id="enemy-area">
-            <div class="stats-box">Enemy HP: <span id="enemy-hp">100</span></div>
+            <div class="stats-box">
+                Enemy: <span id="enemy-name" style="color: #e74c3c; font-weight: bold;">Unknown</span> | HP: <span
+                    id="enemy-hp">100</span>/<span id="enemy-max-hp">100</span>
+                <div id="enemy-desc" style="font-size: 0.75rem; color: #bdc3c7; margin-top: 5px;"></div>
+            </div>
             <div id="enemy-field" class="card-zone"></div>
         </div>
 
@@ -66,12 +79,16 @@
 
         <div id="player-area">
             <div id="player-field" class="card-zone"></div>
-            <div class="stats-box">Player HP: <span id="player-hp">100</span> | Mana: <span id="player-mana">3</span>/3</div>
+            <div class="stats-box">Player HP: <span id="player-hp">100</span>/<span id="player-max-hp">100</span> |
+                Mana: <span id="player-mana">10</span>/<span id="player-max-mana">10</span></div>
         </div>
 
-        <div id="player-hand-section"><div id="player-hand"></div></div>
+        <div id="player-hand-section">
+            <div id="player-hand"></div>
+        </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>

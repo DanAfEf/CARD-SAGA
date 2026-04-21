@@ -35,7 +35,7 @@ const GLOBAL_DATABASE = [
     { id: 2, name: "Stab", cost: 1, type: "Normal", damage: 12, char: "Umum" },
     { id: 3, name: "Fireball", cost: 2, type: "Spesial", damage: 30, char: "Mage" },
     { id: 4, name: "Heavy Strike", cost: 2, type: "Spesial", damage: 25, char: "Warrior" },
-    { id: 5, name: "Holy Smite", cost: 3, type: "Spesial", damage: 45, char: "Paladin" }, 
+    { id: 5, name: "Holy Smite", cost: 3, type: "Spesial", damage: 45, char: "Paladin" },
     { id: 6, name: "Poison Dart", cost: 1, type: "Normal", damage: 15, char: "Rogue" },
     { id: 7, name: "Dragon Breath", cost: 3, type: "Spesial", damage: 50, char: "Dragonborn" },
     { id: 8, name: "Slash", cost: 1, type: "Normal", damage: 10, char: "Umum" },
@@ -44,17 +44,38 @@ const GLOBAL_DATABASE = [
     { id: 11, name: "Heavy Strike", cost: 2, type: "Spesial", damage: 25, char: "Warrior" }
 ];
 
-let playerCollection = [...GLOBAL_DATABASE]; 
+let playerCollection = [];
 let activeDeck = [];
+
+GLOBAL_DATABASE.forEach(card => {
+    if (card.id >= 1 && card.id <= 5) {
+        activeDeck.push(card);
+    } else {
+        playerCollection.push(card);
+    }
+});
+
+const ENEMIES_DB = [
+    { name: "Gifa", hp: 100, desc: "Debuff: Pemain kehilangan 5 Mana di awal pertarungan." },
+    { name: "Daft", hp: 100, desc: "Buff: Serangan musuh memiliki 20% ekstra Damage." },
+    { name: "Venox", hp: 100, desc: "Debuff: Pemain terkena Poison, kehilangan 5 HP tiap awal turn." },
+    { name: "Aegis", hp: 120, desc: "Buff: Memiliki Shield, menerima 50% lebih sedikit Damage." },
+    { name: "Sylph", hp: 80, desc: "Buff: Regen 10 HP di setiap akhir giliran musuh." }
+];
+
+let currentEnemy = null;
+let manaDebuff = 0;
 
 // =========================================
 // 3. VARIABEL STATE BATTLE & FASE
 // =========================================
-let currentMana = 3;
-let playerHP = 100;
+let maxMana = 10;
+let currentMana = maxMana;
+let maxPlayerHP = 100;
+let playerHP = maxPlayerHP;
 let enemyHP = 100;
 let isPlayerTurn = true;
-let currentPhase = 'DRAW'; 
+let currentPhase = 'DRAW';
 let cardsOnField = [];
 
 // =========================================
@@ -70,8 +91,17 @@ function showScreen(screenToShow) {
 
 function updateUI() {
     document.getElementById('player-mana').innerText = currentMana;
+    if (document.getElementById('player-max-mana')) {
+        document.getElementById('player-max-mana').innerText = maxMana;
+    }
     document.getElementById('player-hp').innerText = playerHP;
+    if (document.getElementById('player-max-hp')) {
+        document.getElementById('player-max-hp').innerText = maxPlayerHP;
+    }
     document.getElementById('enemy-hp').innerText = enemyHP;
+    if (currentEnemy && document.getElementById('enemy-max-hp')) {
+        document.getElementById('enemy-max-hp').innerText = currentEnemy.hp;
+    }
 }
 
 function createCardHTML(cardData, isMini = false) {
@@ -100,10 +130,10 @@ function renderDeckEditor() {
 
     if (activeDeck.length >= 10) {
         editorCollection.classList.add('collection-locked');
-        deckCountInfo.style.color = "#e74c3c"; 
+        deckCountInfo.style.color = "#e74c3c";
     } else {
         editorCollection.classList.remove('collection-locked');
-        deckCountInfo.style.color = "#f1c40f"; 
+        deckCountInfo.style.color = "#f1c40f";
     }
 
     playerCollection.forEach((cardData, index) => {
@@ -120,10 +150,10 @@ function renderDeckEditor() {
 }
 
 function addCardToDeck(collectionIndex) {
-    if (activeDeck.length >= 10) return; 
+    if (activeDeck.length >= 10) return;
     const selectedCard = playerCollection.splice(collectionIndex, 1)[0];
-    activeDeck.push(selectedCard); 
-    renderDeckEditor(); 
+    activeDeck.push(selectedCard);
+    renderDeckEditor();
 }
 
 function removeCardFromDeck(deckIndex) {
@@ -145,7 +175,7 @@ function announcePhase(text, callback) {
         phaseBanner.classList.remove('phase-banner-active');
         phaseBanner.classList.add('phase-banner-hidden');
         if (callback) callback();
-    }, 1500); 
+    }, 1500);
 }
 
 // =========================================
@@ -153,9 +183,21 @@ function announcePhase(text, callback) {
 // =========================================
 function startPlayerTurnSequence() {
     isPlayerTurn = true;
-    currentMana = 3;
+    currentMana = maxMana;
+
+    if (currentEnemy && currentEnemy.name === "Venox") {
+        playerHP -= 5;
+        if (playerHP < 0) playerHP = 0;
+    }
+
+    if (manaDebuff > 0) {
+        currentMana -= manaDebuff;
+        manaDebuff = 0;
+        if (currentMana < 0) currentMana = 0;
+    }
+
     updateUI();
-    
+
     announcePhase("DRAW PHASE", () => {
         drawNewCards();
         setTimeout(() => {
@@ -163,7 +205,7 @@ function startPlayerTurnSequence() {
                 currentPhase = 'MAIN';
                 phaseIndicator.innerText = "PHASE: MAIN PHASE";
                 phaseIndicator.style.color = "#f1c40f";
-                
+
                 btnPhaseAction.disabled = false;
                 btnPhaseAction.innerText = "Go to Battle Phase";
                 btnPhaseAction.style.opacity = "1";
@@ -185,7 +227,7 @@ function drawNewCards() {
     const cardsToDraw = [randSpecial, randNormal1, randNormal2];
 
     cardsToDraw.forEach(cardData => {
-        if (playerHandDiv.children.length >= 10) return; 
+        if (playerHandDiv.children.length >= 10) return;
         const cardElement = createCardHTML(cardData, false);
         cardElement.onclick = () => playCard(cardData, cardElement);
         playerHandDiv.appendChild(cardElement);
@@ -201,11 +243,11 @@ function playCard(cardData, cardElement) {
 
     if (currentMana >= cardData.cost) {
         currentMana -= cardData.cost;
-        cardsOnField.push(cardData); 
-        updateUI(); 
-        
+        cardsOnField.push(cardData);
+        updateUI();
+
         playerFieldDiv.appendChild(cardElement);
-        cardElement.classList.add('played-card'); 
+        cardElement.classList.add('played-card');
         cardElement.onclick = () => cancelCard(cardData, cardElement);
     } else {
         alert(`Mana tidak cukup!`);
@@ -239,18 +281,22 @@ btnPhaseAction.addEventListener('click', () => {
         announcePhase("BATTLE PHASE", () => {
             currentPhase = 'BATTLE';
             phaseIndicator.innerText = "PHASE: BATTLE PHASE";
-            phaseIndicator.style.color = "#e74c3c"; 
-            
+            phaseIndicator.style.color = "#e74c3c";
+
             btnPhaseAction.disabled = false;
             btnPhaseAction.innerText = (cardsOnField.length > 0) ? "Execute Attack!" : "Skip Battle & End Turn";
         });
-    } 
+    }
     else if (currentPhase === 'BATTLE') {
         let totalDamage = 0;
         cardsOnField.forEach(card => totalDamage += card.damage);
-        
+
+        if (currentEnemy && currentEnemy.name === "Aegis") {
+            totalDamage = Math.floor(totalDamage * 0.5);
+        }
+
         enemyHP -= totalDamage;
-        if(enemyHP < 0) enemyHP = 0;
+        if (enemyHP < 0) enemyHP = 0;
         updateUI();
 
         if (enemyHP <= 0) {
@@ -262,11 +308,11 @@ btnPhaseAction.addEventListener('click', () => {
         announcePhase("END PHASE", () => {
             currentPhase = 'END';
             phaseIndicator.innerText = "PHASE: END PHASE";
-            phaseIndicator.style.color = "#95a5a6"; 
-            
+            phaseIndicator.style.color = "#95a5a6";
+
             btnPhaseAction.disabled = false;
             btnPhaseAction.innerText = "Confirm End Turn";
-            
+
             playerFieldDiv.innerHTML = '';
             cardsOnField = [];
         });
@@ -280,7 +326,7 @@ btnPhaseAction.addEventListener('click', () => {
 // 9. LOGIKA BATTLE (MUSUH / AI)
 // =========================================
 function drawEnemyCards(amount) {
-    for(let i=0; i<amount; i++) {
+    for (let i = 0; i < amount; i++) {
         if (enemyHandDiv.children.length >= 10) break;
         const cardElement = document.createElement('div');
         cardElement.classList.add('card', 'card-back');
@@ -291,17 +337,17 @@ function drawEnemyCards(amount) {
 function startEnemyTurnSequence() {
     isPlayerTurn = false;
     currentPhase = 'ENEMY';
-    
+
     phaseIndicator.innerText = "PHASE: ENEMY TURN";
     phaseIndicator.style.color = "#c0392b";
-    
+
     btnPhaseAction.disabled = true;
     btnPhaseAction.innerText = "Enemy Turn...";
     btnPhaseAction.style.opacity = "0.5";
 
     announcePhase("ENEMY DRAW", () => {
         drawEnemyCards(3);
-        
+
         setTimeout(() => {
             announcePhase("ENEMY MAIN", () => {
                 processEnemyAI(() => {
@@ -316,7 +362,7 @@ function startEnemyTurnSequence() {
                     setTimeout(() => {
                         announcePhase("ENEMY END", () => {
                             enemyFieldDiv.innerHTML = '';
-                            startPlayerTurnSequence(); 
+                            startPlayerTurnSequence();
                         });
                     }, 1000);
                 });
@@ -327,19 +373,19 @@ function startEnemyTurnSequence() {
 
 function processEnemyAI(onComplete) {
     let enemyMana = 3;
-    
+
     function playNext() {
         const playable = GLOBAL_DATABASE.filter(c => c.cost <= enemyMana);
         if (enemyMana > 0 && enemyHandDiv.children.length > 0 && playable.length > 0) {
-            
+
             const cardData = playable[Math.floor(Math.random() * playable.length)];
             const randomIndex = Math.floor(Math.random() * enemyHandDiv.children.length);
             const cardEl = enemyHandDiv.children[randomIndex];
-            
+
             enemyFieldDiv.appendChild(cardEl);
             cardEl.classList.remove('card-back');
             cardEl.classList.add('played-card');
-            
+
             cardEl.innerHTML = `
                 <div class="card-title">${cardData.name}</div>
                 <div class="card-type">[${cardData.type}]<br><span style="font-size:0.6rem; color:#ccc;">${cardData.char}</span></div>
@@ -348,14 +394,23 @@ function processEnemyAI(onComplete) {
                     <span class="damage">⚔️ ${cardData.damage}</span>
                 </div>
             `;
-            
-            playerHP -= cardData.damage;
+
+            let dmg = cardData.damage;
+            if (currentEnemy && currentEnemy.name === "Daft") {
+                dmg = Math.floor(dmg * 1.2);
+            }
+            playerHP -= dmg;
             enemyMana -= cardData.cost;
-            if(playerHP < 0) playerHP = 0;
+            if (playerHP < 0) playerHP = 0;
             updateUI();
-            
-            setTimeout(playNext, 800); 
+
+            setTimeout(playNext, 800);
         } else {
+            if (currentEnemy && currentEnemy.name === "Sylph") {
+                enemyHP += 10;
+                if (enemyHP > currentEnemy.hp) enemyHP = currentEnemy.hp;
+                updateUI();
+            }
             onComplete();
         }
     }
@@ -378,7 +433,7 @@ btnBackFromDeck.addEventListener('click', () => {
 });
 
 btnExit.addEventListener('click', () => {
-    if(confirm("Mau keluar dari game?")) window.location.reload(); 
+    if (confirm("Mau keluar dari game?")) window.location.reload();
 });
 
 btnGoBattle.addEventListener('click', () => {
@@ -388,25 +443,31 @@ btnGoBattle.addEventListener('click', () => {
     }
 
     showScreen(gameplayPage);
-    playerHP = 100;
-    enemyHP = 100;
+
+    currentEnemy = ENEMIES_DB[Math.floor(Math.random() * ENEMIES_DB.length)];
+    document.getElementById('enemy-name').innerText = currentEnemy.name;
+    document.getElementById('enemy-desc').innerText = currentEnemy.desc;
+
+    playerHP = maxPlayerHP;
+    enemyHP = currentEnemy.hp;
+    manaDebuff = (currentEnemy.name === "Gifa") ? 5 : 0;
     cardsOnField = [];
-    
-    playerFieldDiv.innerHTML = ''; 
-    enemyFieldDiv.innerHTML = ''; 
+
+    playerFieldDiv.innerHTML = '';
+    enemyFieldDiv.innerHTML = '';
     playerHandDiv.innerHTML = '';
     enemyHandDiv.innerHTML = '';
-    
-    drawEnemyCards(3); 
+
+    drawEnemyCards(3);
     startPlayerTurnSequence();
 });
 
 btnBackToUi.addEventListener('click', () => {
     if (confirm("Are you sure want to quit?")) {
         showScreen(mainUi);
-        playerFieldDiv.innerHTML = ''; 
-        playerHandDiv.innerHTML = '';  
-        enemyFieldDiv.innerHTML = ''; 
-        enemyHandDiv.innerHTML = ''; 
+        playerFieldDiv.innerHTML = '';
+        playerHandDiv.innerHTML = '';
+        enemyFieldDiv.innerHTML = '';
+        enemyHandDiv.innerHTML = '';
     }
 });
