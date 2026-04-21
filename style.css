@@ -1,0 +1,165 @@
+/* --- CSS Reset & General --- */
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    height: 100%; overflow: hidden; background-color: #1a1a2e; color: white;
+}
+
+.hidden { display: none !important; }
+
+/* --- Desain Tombol Global --- */
+.game-btn {
+    padding: 15px 40px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase;
+    cursor: pointer; background: linear-gradient(45deg, #e94560, #950740);
+    color: white; border: 2px solid #fff; border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4); transition: all 0.2s ease; outline: none;
+}
+.game-btn:hover:not(:disabled) { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 20px rgba(233, 69, 96, 0.6); }
+.game-btn:active:not(:disabled) { transform: translateY(1px); }
+
+/* --- PAGE LAYOUTS --- */
+#login-page {
+    height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: radial-gradient(circle, #16213e 0%, #0f3460 100%);
+}
+#game-title { font-size: 4rem; margin-bottom: 50px; text-shadow: 0 0 10px #e94560, 0 0 20px #e94560; letter-spacing: 5px; }
+.menu-buttons { display: flex; flex-direction: column; gap: 20px; }
+
+#main-ui, #deck-editor-page { height: 100%; display: flex; flex-direction: column; padding: 20px; background-color: #16213e; }
+#ui-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid #0f3460; }
+#ui-content { flex: 1; display: flex; justify-content: center; align-items: center; gap: 30px; }
+
+.ui-card-placeholder {
+    width: 200px; height: 300px; background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 10px; display: flex; justify-content: center; align-items: center; color: rgba(255,255,255,0.5); text-align: center;
+}
+
+/* --- DECK EDITOR STYLES (BARU) --- */
+.editor-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-top: 10px; }
+.editor-section h3 { margin-bottom: 10px; color: #bdc3c7; font-size: 1rem; }
+.editor-grid {
+    flex: 1; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start;
+    overflow-y: auto; padding-right: 10px;
+}
+
+/* Scrollbar khusus biar keren */
+.editor-grid::-webkit-scrollbar { width: 8px; }
+.editor-grid::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+.editor-grid::-webkit-scrollbar-thumb { background: #e94560; border-radius: 5px; }
+
+/* --- GAMEPLAY PAGE --- */
+#gameplay-page {
+    height: 100%; display: grid; grid-template-rows: auto 1fr auto 1fr auto; 
+    background: #0f0f1a; padding: 20px; position: relative;
+}
+.back-btn-anchor { position: absolute; top: 20px; left: 20px; z-index: 10; }
+.stats-box { text-align: center; font-size: 1.2rem; font-weight: bold; margin: 10px 0; color: #e94560; text-shadow: 0 0 5px rgba(233, 69, 96, 0.5); }
+.card-zone { display: flex; justify-content: center; align-items: center; gap: 20px; min-height: 180px; padding: 10px; }
+.table-divider { height: 3px; background: rgba(255, 255, 255, 0.1); margin: 5px 50px; border-radius: 5px; }
+#player-hand-section, #enemy-hand-section { display: flex; justify-content: center; align-items: center; }
+#player-hand, #enemy-hand { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: nowrap; }
+
+/* --- DESAIN KARTU (Normal & Mini) --- */
+.card {
+    width: 120px; height: 180px; background: linear-gradient(135deg, #2a2a40, #16213e);
+    border: 2px solid #4a4a6a; border-radius: 10px; padding: 10px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    cursor: pointer; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; user-select: none; 
+}
+.card:hover { transform: translateY(-15px); border-color: #e94560; box-shadow: 0 10px 20px rgba(233, 69, 96, 0.4); }
+
+.card-title { font-size: 1rem; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
+.card-type { font-size: 0.75rem; color: #f39c12; text-align: center; margin-top: 5px; font-weight: bold; }
+.card-stats { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
+.cost { color: #3498db; }
+.damage { color: #e74c3c; }
+
+/* Kartu versi mini untuk di Deck Editor */
+.mini-card { width: 90px; height: 135px; padding: 5px; }
+.mini-card .card-title { font-size: 0.8rem; }
+.mini-card .card-stats { font-size: 0.8rem; }
+.mini-card:hover { transform: translateY(-5px); }
+
+/* Efek Batal & Kartu di Meja */
+.played-card { transform: scale(0.9); border-color: #7f8c8d; box-shadow: none; cursor: pointer; }
+.played-card:hover { transform: scale(0.95); border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); }
+
+/* --- COVER KARTU MUSUH --- */
+.card-back { background: repeating-linear-gradient(45deg, #16213e, #16213e 10px, #0f3460 10px, #0f3460 20px); border: 2px solid #e94560; cursor: default; }
+.card-back * { display: none !important; }
+.card-back::after { content: 'ENEMY'; display: flex; justify-content: center; align-items: center; height: 100%; color: rgba(233, 69, 96, 0.5); font-weight: bold; letter-spacing: 2px; }
+.card-back:hover { transform: none; box-shadow: none; border-color: #e94560; }
+/* --- EFEK LOCK DECK EDITOR --- */
+.collection-locked .card {
+    filter: grayscale(100%) brightness(50%);
+    pointer-events: none; /* Mencegah kartu bisa diklik */
+    border-color: #333;
+    box-shadow: none;
+}
+/* --- EFEK FASE GAMEPLAY --- */
+.phase-text {
+    color: #f1c40f;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
+}
+/* --- SEMUA CSS SEBELUMNYA TETAP ADA --- */
+
+/* ... (Gunakan CSS dari versi sebelumnya) ... */
+
+/* --- EFEK BANNER TRANSISI FASE (BARU) --- */
+#phase-banner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    color: #f1c40f;
+    text-align: center;
+    padding: 40px 0;
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 10px;
+    z-index: 999;
+    border-top: 4px solid #f1c40f;
+    border-bottom: 4px solid #f1c40f;
+    text-shadow: 0 0 20px #f1c40f;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.phase-banner-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.phase-banner-active {
+    opacity: 1;
+    visibility: visible;
+    animation: bannerSlide 1.5s ease-in-out forwards;
+}
+
+@keyframes bannerSlide {
+    0% { transform: translate(-50%, -50%) scaleX(0); opacity: 0; }
+    20% { transform: translate(-50%, -50%) scaleX(1); opacity: 1; }
+    80% { transform: translate(-50%, -50%) scaleX(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scaleX(0); opacity: 0; }
+}
+
+.phase-text {
+    color: #f1c40f;
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Saga - Phase System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="phase-banner" class="phase-banner-hidden">MAIN PHASE</div>
+
+    <div id="login-page">
+        <h1 id="game-title">CARD SAGA</h1>
+        <div class="menu-buttons">
+            <button class="game-btn" id="btn-start">Start Menu</button>
+            <button class="game-btn" id="btn-exit" style="background: linear-gradient(45deg, #4e4e50, #1a1a1d);">Exit</button>
+        </div>
+    </div>
+
+    <div id="main-ui" class="hidden">
+        <div id="ui-header">
+            <button class="game-btn" id="btn-back-to-login" style="padding: 5px 15px; font-size: 0.8rem;">Back to Title</button>
+            <h2>Main Menu Hub</h2>
+            <div id="player-info">Player: Guest123 | Gold: 1000</div>
+        </div>
+        <div id="ui-content">
+            <button class="game-btn" id="btn-open-deck-editor" style="background: linear-gradient(45deg, #2980b9, #2c3e50);">Deck Editor</button>
+            <button class="game-btn" id="btn-go-battle">Find Battle!</button>
+        </div>
+    </div>
+
+    <div id="deck-editor-page" class="hidden">
+        <div id="ui-header">
+            <button class="game-btn" id="btn-back-from-deck" style="padding: 5px 15px; font-size: 0.8rem;">Save & Back</button>
+            <h2>Deck Builder</h2>
+            <div id="deck-count-info" style="font-size: 1.2rem; font-weight: bold; color: #f1c40f;">Cards: 0/10</div>
+        </div>
+        <div class="editor-section">
+            <h3>Active Deck (Klik untuk mencopot)</h3>
+            <div id="editor-active-deck" class="editor-grid"></div>
+        </div>
+        <div class="table-divider"></div>
+        <div class="editor-section">
+            <h3>Card Collection (Klik untuk menambahkan)</h3>
+            <div id="editor-collection" class="editor-grid"></div>
+        </div>
+    </div>
+
+    <div id="gameplay-page" class="hidden">
+        <button class="game-btn back-btn-anchor" id="btn-back-to-ui" style="padding: 5px 15px; font-size: 0.8rem;">Quit Match</button>
+
+        <div id="enemy-hand-section"><div id="enemy-hand"></div></div>
+
+        <div id="enemy-area">
+            <div class="stats-box">Enemy HP: <span id="enemy-hp">100</span></div>
+            <div id="enemy-field" class="card-zone"></div>
+        </div>
+
+        <div style="text-align: center; margin: 10px;">
+            <div id="phase-indicator" class="phase-text">PREPARING...</div>
+            <button class="game-btn" id="btn-phase-action" style="padding: 10px 20px; font-size: 1rem;">Wait...</button>
+        </div>
+
+        <div class="table-divider"></div>
+
+        <div id="player-area">
+            <div id="player-field" class="card-zone"></div>
+            <div class="stats-box">Player HP: <span id="player-hp">100</span> | Mana: <span id="player-mana">3</span>/3</div>
+        </div>
+
+        <div id="player-hand-section"><div id="player-hand"></div></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
