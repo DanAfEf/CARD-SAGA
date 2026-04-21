@@ -6,21 +6,18 @@ const mainUi = document.getElementById('main-ui');
 const gameplayPage = document.getElementById('gameplay-page');
 const deckEditorPage = document.getElementById('deck-editor-page');
 
-// Navigasi Layar Utama
 const btnStart = document.getElementById('btn-start');
 const btnExit = document.getElementById('btn-exit');
 const btnGoBattle = document.getElementById('btn-go-battle');
 const btnBackToUi = document.getElementById('btn-back-to-ui');
 const btnBackToLogin = document.getElementById('btn-back-to-login');
 
-// Navigasi Deck Editor
 const btnOpenDeckEditor = document.getElementById('btn-open-deck-editor');
 const btnBackFromDeck = document.getElementById('btn-back-from-deck');
 const editorActiveDeck = document.getElementById('editor-active-deck');
 const editorCollection = document.getElementById('editor-collection');
 const deckCountInfo = document.getElementById('deck-count-info');
 
-// Area Gameplay
 const phaseBanner = document.getElementById('phase-banner');
 const phaseIndicator = document.getElementById('phase-indicator');
 const btnPhaseAction = document.getElementById('btn-phase-action');
@@ -77,7 +74,6 @@ function updateUI() {
     document.getElementById('enemy-hp').innerText = enemyHP;
 }
 
-// Fungsi Bantuan Pembuat Fisik Kartu
 function createCardHTML(cardData, isMini = false) {
     const el = document.createElement('div');
     el.classList.add('card');
@@ -401,7 +397,7 @@ btnGoBattle.addEventListener('click', () => {
     playerHandDiv.innerHTML = '';
     enemyHandDiv.innerHTML = '';
     
-    drawEnemyCards(3); // Inisiasi tangan musuh sebelum mulai
+    drawEnemyCards(3); 
     startPlayerTurnSequence();
 });
 
