@@ -56,6 +56,14 @@ GLOBAL_DATABASE.forEach(card => {
     }
 });
 
+const ENEMIES_DB = [
+    { name: "Gifa", hp: 100, desc: "Debuff: Pemain kehilangan 5 Mana di awal pertarungan." },
+    { name: "Daft", hp: 100, desc: "Buff: Serangan musuh memiliki 20% ekstra Damage." },
+    { name: "Venox", hp: 100, desc: "Debuff: Pemain terkena Poison, kehilangan 5 HP tiap awal turn." },
+    { name: "Aegis", hp: 120, desc: "Buff: Memiliki Shield, menerima 50% lebih sedikit Damage." },
+    { name: "Sylph", hp: 80, desc: "Buff: Regen 10 HP di setiap akhir giliran musuh." }
+];
+
 let currentEnemy = null;
 let manaDebuff = 0;
 
@@ -470,15 +478,7 @@ btnOpenDeckEditor.addEventListener('click', () => {
 const btnOpenGallery = document.getElementById('btn-open-gallery');
 if (btnOpenGallery) {
     btnOpenGallery.addEventListener('click', () => {
-        showScreen(document.getElementById('gallery-page'));
-        renderGallery();
-    });
-}
-
-const btnBackFromGallery = document.getElementById('btn-back-from-gallery');
-if (btnBackFromGallery) {
-    btnBackFromGallery.addEventListener('click', () => {
-        showScreen(mainUi);
+        window.location.href = 'gallery/gallery.html';
     });
 }
 
@@ -503,13 +503,18 @@ btnGoBattle.addEventListener('click', () => {
     const enemyNameEl = document.getElementById('enemy-name');
     enemyNameEl.innerText = currentEnemy.name;
     
-    if (typeof isEnemyUnlocked === 'function') {
-        if (!isEnemyUnlocked(currentEnemy.name)) {
-            enemyNameEl.classList.add('rgb-text');
-            unlockEnemy(currentEnemy.name);
-        } else {
-            enemyNameEl.classList.remove('rgb-text');
-        }
+    // Logika Gallery Mandiri menggunakan localStorage
+    let unlocked = [];
+    try {
+        unlocked = JSON.parse(localStorage.getItem('cardSaga_unlockedEnemies') || '[]');
+    } catch(e) {}
+
+    if (!unlocked.includes(currentEnemy.name)) {
+        enemyNameEl.classList.add('rgb-text');
+        unlocked.push(currentEnemy.name);
+        localStorage.setItem('cardSaga_unlockedEnemies', JSON.stringify(unlocked));
+    } else {
+        enemyNameEl.classList.remove('rgb-text');
     }
 
     document.getElementById('enemy-desc').innerText = currentEnemy.desc;
