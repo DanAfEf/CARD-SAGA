@@ -4,11 +4,11 @@
 
 // Gunakan path relatif dari index.html jika ini diakses oleh index.html, atau dari gallery.html jika diakses gallery
 const ENEMIES_DB = [
-    { name: "Gifa", hp: 100, desc: "Debuff: Pemain kehilangan 5 Mana di awal pertarungan.", image: "../img/gifa.png" },
-    { name: "Daft", hp: 100, desc: "Buff: Serangan musuh memiliki 20% ekstra Damage.", image: "../img/daft.png" },
-    { name: "Venox", hp: 100, desc: "Debuff: Pemain terkena Poison, kehilangan 5 HP tiap awal turn.", image: "../img/venox.png" },
-    { name: "Aegis", hp: 120, desc: "Buff: Memiliki Shield, menerima 50% lebih sedikit Damage.", image: "../img/aegis.png" },
-    { name: "Sylph", hp: 80, desc: "Buff: Regen 10 HP di setiap akhir giliran musuh.", image: "../img/sylph.png" }
+    { name: "Gifa", hp: 100, desc: "Debuff: Pemain kehilangan 5 Mana di awal pertarungan.", image: "img/gifa.png" },
+    { name: "Daft", hp: 100, desc: "Buff: Serangan musuh memiliki 20% ekstra Damage.", image: "img/daft.png" },
+    { name: "Venox", hp: 100, desc: "Debuff: Pemain terkena Poison, kehilangan 5 HP tiap awal turn.", image: "img/venox.png" },
+    { name: "Aegis", hp: 120, desc: "Buff: Memiliki Shield, menerima 50% lebih sedikit Damage.", image: "img/aegis.png" },
+    { name: "Sylph", hp: 80, desc: "Buff: Regen 10 HP di setiap akhir giliran musuh.", image: "img/sylph.png" }
 ];
 
 const GALLERY_STORAGE_KEY = 'cardSaga_unlockedEnemies';
