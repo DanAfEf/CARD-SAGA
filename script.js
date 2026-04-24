@@ -40,7 +40,8 @@ const GLOBAL_DATABASE = [
     { id: 7, name: "Dragon Breath", cost: 3, type: "Spesial", damage: 50, char: "Dragonborn" },
     { id: 8, name: "Slash", cost: 1, type: "Normal", damage: 10, char: "Umum" },
     { id: 9, name: "Stab", cost: 1, type: "Normal", damage: 12, char: "Umum" },
-    { id: 10, name: "Fireball", cost: 2, type: "Spesial", damage: 30, char: "Mage" },
+    // KARTU BARU DENGAN MEKANIK DOUBLE ATTACK
+    { id: 10, name: "Dual Blade", cost: 2, type: "Spesial", damage: 15, char: "Rogue", doubleAttack: true },
     { id: 11, name: "Heavy Strike", cost: 2, type: "Spesial", damage: 25, char: "Warrior" }
 ];
 
@@ -77,6 +78,7 @@ let enemyHP = 100;
 let isPlayerTurn = true;
 let currentPhase = 'DRAW';
 let cardsOnField = [];
+let hasAttackedOnce = false; // <-- STATE BARU UNTUK CEK ATTACK 2x
 
 // =========================================
 // 4. FUNGSI UTAMA & UI
@@ -109,9 +111,13 @@ function createCardHTML(cardData, isMini = false) {
     el.classList.add('card');
     if (isMini) el.classList.add('mini-card');
 
+    // Tambahan visual kalau kartunya punya efek Double Attack
+    let effectText = cardData.doubleAttack ? `<div style="font-size:0.65rem; color:#e74c3c; font-weight:bold; text-align:center; margin-top:2px;">[Double Attack]</div>` : ``;
+
     el.innerHTML = `
         <div class="card-title">${cardData.name}</div>
         <div class="card-type">[${cardData.type}]<br><span style="font-size:0.6rem; color:#ccc;">${cardData.char}</span></div>
+        ${effectText}
         <div class="card-stats" style="margin-top: auto;">
             <span class="cost">💎 ${cardData.cost}</span>
             <span class="damage">⚔️ ${cardData.damage}</span>
@@ -272,53 +278,74 @@ function cancelCard(cardData, cardElement) {
 }
 
 // =========================================
-// 8. LOGIKA STATE MACHINE TOMBOL FASE
+// 8. LOGIKA STATE MACHINE TOMBOL FASE (AUTO-END)
 // =========================================
+function executeAttackLogic() {
+    let totalDamage = 0;
+
+    // Semua kartu menyerang
+    cardsOnField.forEach(card => totalDamage += card.damage);
+
+    // LOGIKA PENGECEKAN KARTU DOUBLE ATTACK
+    // Sesuai permintaan, double attack hanya muncul jika SEMUA kartu memiliki double attack
+    const allHaveDoubleAttack = cardsOnField.length > 0 && cardsOnField.every(card => card.doubleAttack);
+
+    if (allHaveDoubleAttack) {
+        // Serangan kedua otomatis
+        cardsOnField.forEach(card => totalDamage += card.damage);
+    }
+
+    // Kalkulasi buff musuh
+    if (currentEnemy && currentEnemy.name === "Aegis") {
+        totalDamage = Math.floor(totalDamage * 0.5);
+    }
+
+    enemyHP -= totalDamage;
+    if (enemyHP < 0) enemyHP = 0;
+    updateUI();
+
+    if (enemyHP <= 0) {
+        alert("KAMU MENANG!");
+        btnBackToUi.click();
+        return;
+    }
+
+    // AUTO END PHASE LALU OPER KE MUSUH
+    announcePhase("END PHASE", () => {
+        currentPhase = 'END';
+        phaseIndicator.innerText = "PHASE: END PHASE";
+        phaseIndicator.style.color = "#95a5a6";
+
+        btnPhaseAction.disabled = true;
+        btnPhaseAction.innerText = "Auto Ending...";
+
+        playerFieldDiv.innerHTML = '';
+        cardsOnField = [];
+
+        // Otomatis jalanin turn musuh setelah jeda super singkat
+        setTimeout(() => {
+            startEnemyTurnSequence();
+        }, 500); 
+    });
+}
+
 btnPhaseAction.addEventListener('click', () => {
     if (!isPlayerTurn) return;
 
     if (currentPhase === 'MAIN') {
+        btnPhaseAction.disabled = true;
+        btnPhaseAction.innerText = "Entering Battle...";
+        
         announcePhase("BATTLE PHASE", () => {
             currentPhase = 'BATTLE';
             phaseIndicator.innerText = "PHASE: BATTLE PHASE";
             phaseIndicator.style.color = "#e74c3c";
 
-            btnPhaseAction.disabled = false;
-            btnPhaseAction.innerText = (cardsOnField.length > 0) ? "Execute Attack!" : "Skip Battle & End Turn";
+            // Langsung eksekusi attack secara otomatis setelah jeda singkat
+            setTimeout(() => {
+                executeAttackLogic();
+            }, 500);
         });
-    }
-    else if (currentPhase === 'BATTLE') {
-        let totalDamage = 0;
-        cardsOnField.forEach(card => totalDamage += card.damage);
-
-        if (currentEnemy && currentEnemy.name === "Aegis") {
-            totalDamage = Math.floor(totalDamage * 0.5);
-        }
-
-        enemyHP -= totalDamage;
-        if (enemyHP < 0) enemyHP = 0;
-        updateUI();
-
-        if (enemyHP <= 0) {
-            alert("KAMU MENANG!");
-            btnBackToUi.click();
-            return;
-        }
-
-        announcePhase("END PHASE", () => {
-            currentPhase = 'END';
-            phaseIndicator.innerText = "PHASE: END PHASE";
-            phaseIndicator.style.color = "#95a5a6";
-
-            btnPhaseAction.disabled = false;
-            btnPhaseAction.innerText = "Confirm End Turn";
-
-            playerFieldDiv.innerHTML = '';
-            cardsOnField = [];
-        });
-    }
-    else if (currentPhase === 'END') {
-        startEnemyTurnSequence();
     }
 });
 
@@ -372,7 +399,7 @@ function startEnemyTurnSequence() {
 }
 
 function processEnemyAI(onComplete) {
-    let enemyMana = 3;
+    let enemyMana = 3; // AI cuma punya 3 mana biar adil di early game
 
     function playNext() {
         const playable = GLOBAL_DATABASE.filter(c => c.cost <= enemyMana);
@@ -386,19 +413,25 @@ function processEnemyAI(onComplete) {
             cardEl.classList.remove('card-back');
             cardEl.classList.add('played-card');
 
+            let effectText = cardData.doubleAttack ? `<div style="font-size:0.65rem; color:#e74c3c; font-weight:bold; text-align:center; margin-top:2px;">[Double Attack]</div>` : ``;
+
             cardEl.innerHTML = `
                 <div class="card-title">${cardData.name}</div>
                 <div class="card-type">[${cardData.type}]<br><span style="font-size:0.6rem; color:#ccc;">${cardData.char}</span></div>
+                ${effectText}
                 <div class="card-stats" style="margin-top: auto;">
                     <span class="cost">💎 ${cardData.cost}</span>
                     <span class="damage">⚔️ ${cardData.damage}</span>
                 </div>
             `;
 
-            let dmg = cardData.damage;
+            // Kalau AI mainin kartu Double Attack, dia langsung ngasih 2x lipat damage 
+            let dmg = cardData.doubleAttack ? (cardData.damage * 2) : cardData.damage;
+
             if (currentEnemy && currentEnemy.name === "Daft") {
                 dmg = Math.floor(dmg * 1.2);
             }
+            
             playerHP -= dmg;
             enemyMana -= cardData.cost;
             if (playerHP < 0) playerHP = 0;
