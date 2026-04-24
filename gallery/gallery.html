@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Enemy Gallery - Card Saga</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+    <div id="gallery-page">
+        <div id="ui-header">
+            <!-- Navigasi kembali ke halaman utama (index.html) -->
+            <button class="game-btn" id="btn-back-from-gallery" onclick="window.location.href='../index.html'" style="padding: 5px 15px; font-size: 0.8rem;">
+                Back to Main Menu
+            </button>
+            <h2>Enemy Gallery</h2>
+        </div>
+        
+        <div class="editor-section" style="max-height: 80vh; overflow-y: auto;">
+            <p style="text-align: center; color: #bdc3c7; margin-bottom: 20px;">Temukan musuh-musuh di mode pertempuran untuk membuka rahasia mereka!</p>
+            <div id="gallery-grid" class="gallery-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal untuk Detail Musuh -->
+    <div id="gallery-modal" class="hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEnemyDetails()">&times;</span>
+            <img id="modal-img" src="" alt="Enemy Image">
+            <h2 id="modal-name">Enemy Name</h2>
+            <div id="modal-hp" style="color: #e74c3c; font-weight: bold; margin-bottom: 10px;">HP: ?</div>
+            <p id="modal-desc">Description</p>
+        </div>
+    </div>
+
+    <script src="gallery.js"></script>
+</body>
+</html>
