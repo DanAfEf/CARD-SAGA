@@ -273,75 +273,85 @@ function cancelCard(cardData, cardElement) {
 // =========================================
 // 8. LOGIKA STATE MACHINE TOMBOL FASE (AUTO-END)
 // =========================================
+function executeAttackLogic() {
+    let totalDamage = 0;
+
+    // KALKULASI DAMAGE BERDASARKAN ATTACK KE BERAPA
+    if (!hasAttackedOnce) {
+        // Serangan pertama: Semua kartu menyerang
+        cardsOnField.forEach(card => totalDamage += card.damage);
+    } else {
+        // Serangan kedua: HANYA kartu dengan doubleAttack yang menyumbang damage
+        cardsOnField.forEach(card => {
+            if (card.doubleAttack) totalDamage += card.damage;
+        });
+    }
+
+    // Kalkulasi buff musuh
+    if (currentEnemy && currentEnemy.name === "Aegis") {
+        totalDamage = Math.floor(totalDamage * 0.5);
+    }
+
+    enemyHP -= totalDamage;
+    if (enemyHP < 0) enemyHP = 0;
+    updateUI();
+
+    if (enemyHP <= 0) {
+        alert("KAMU MENANG!");
+        btnBackToUi.click();
+        return;
+    }
+
+    // LOGIKA PENGECEKAN KARTU DOUBLE ATTACK
+    const hasDoubleAttackCard = cardsOnField.some(card => card.doubleAttack);
+
+    if (hasDoubleAttackCard && !hasAttackedOnce) {
+        // Kalau ada kartu double attack dan baru nyerang 1x, tahan di Battle Phase
+        hasAttackedOnce = true;
+        btnPhaseAction.disabled = false;
+        btnPhaseAction.innerText = "Execute 2nd Attack!";
+    } else {
+        // AUTO END PHASE LALU OPER KE MUSUH
+        announcePhase("END PHASE", () => {
+            currentPhase = 'END';
+            phaseIndicator.innerText = "PHASE: END PHASE";
+            phaseIndicator.style.color = "#95a5a6";
+
+            btnPhaseAction.disabled = true;
+            btnPhaseAction.innerText = "Auto Ending...";
+
+            playerFieldDiv.innerHTML = '';
+            cardsOnField = [];
+
+            // Otomatis jalanin turn musuh setelah jeda super singkat
+            setTimeout(() => {
+                startEnemyTurnSequence();
+            }, 500); 
+        });
+    }
+}
+
 btnPhaseAction.addEventListener('click', () => {
     if (!isPlayerTurn) return;
 
     if (currentPhase === 'MAIN') {
+        btnPhaseAction.disabled = true;
+        btnPhaseAction.innerText = "Auto Attacking...";
+
         announcePhase("BATTLE PHASE", () => {
             currentPhase = 'BATTLE';
             phaseIndicator.innerText = "PHASE: BATTLE PHASE";
             phaseIndicator.style.color = "#e74c3c";
 
-            btnPhaseAction.disabled = false;
-            // Ubah teks kalau meja kosong (langsung skip turn)
-            btnPhaseAction.innerText = (cardsOnField.length > 0) ? "Execute Attack!" : "Skip Battle (Auto End)";
+            // Langsung eksekusi attack secara otomatis setelah jeda singkat
+            setTimeout(() => {
+                executeAttackLogic();
+            }, 500);
         });
     }
     else if (currentPhase === 'BATTLE') {
-        let totalDamage = 0;
-
-        // KALKULASI DAMAGE BERDASARKAN ATTACK KE BERAPA
-        if (!hasAttackedOnce) {
-            // Serangan pertama: Semua kartu menyerang
-            cardsOnField.forEach(card => totalDamage += card.damage);
-        } else {
-            // Serangan kedua: HANYA kartu dengan doubleAttack yang menyumbang damage
-            cardsOnField.forEach(card => {
-                if (card.doubleAttack) totalDamage += card.damage;
-            });
-        }
-
-        // Kalkulasi buff musuh
-        if (currentEnemy && currentEnemy.name === "Aegis") {
-            totalDamage = Math.floor(totalDamage * 0.5);
-        }
-
-        enemyHP -= totalDamage;
-        if (enemyHP < 0) enemyHP = 0;
-        updateUI();
-
-        if (enemyHP <= 0) {
-            alert("KAMU MENANG!");
-            btnBackToUi.click();
-            return;
-        }
-
-        // LOGIKA PENGECEKAN KARTU DOUBLE ATTACK
-        const hasDoubleAttackCard = cardsOnField.some(card => card.doubleAttack);
-
-        if (hasDoubleAttackCard && !hasAttackedOnce) {
-            // Kalau ada kartu double attack dan baru nyerang 1x, tahan di Battle Phase
-            hasAttackedOnce = true;
-            btnPhaseAction.innerText = "Execute 2nd Attack!";
-        } else {
-            // AUTO END PHASE LALU OPER KE MUSUH
-            announcePhase("END PHASE", () => {
-                currentPhase = 'END';
-                phaseIndicator.innerText = "PHASE: END PHASE";
-                phaseIndicator.style.color = "#95a5a6";
-
-                btnPhaseAction.disabled = true;
-                btnPhaseAction.innerText = "Auto Ending...";
-
-                playerFieldDiv.innerHTML = '';
-                cardsOnField = [];
-
-                // Otomatis jalanin turn musuh setelah jeda super singkat
-                setTimeout(() => {
-                    startEnemyTurnSequence();
-                }, 500); 
-            });
-        }
+        btnPhaseAction.disabled = true;
+        executeAttackLogic();
     }
 });
 
