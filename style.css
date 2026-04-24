@@ -1,0 +1,171 @@
+/* ========================================= */
+/* CSS RESET & GENERAL                       */
+/* ========================================= */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+body, html {
+    width: 100%; height: 100%; overflow: hidden; /* Mencegah layar goyang di HP */
+    background-color: #1a1a2e; color: white;
+    touch-action: none; /* Optimalisasi sentuhan untuk game */
+}
+
+.hidden { display: none !important; }
+
+/* ========================================= */
+/* DESAIN TOMBOL GLOBAL                      */
+/* ========================================= */
+.game-btn {
+    padding: 15px 40px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase;
+    cursor: pointer; background: linear-gradient(45deg, #e94560, #950740);
+    color: white; border: 2px solid #fff; border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4); transition: all 0.2s ease; outline: none;
+}
+.game-btn:hover:not(:disabled) { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 20px rgba(233, 69, 96, 0.6); }
+.game-btn:active:not(:disabled) { transform: translateY(1px); }
+
+/* ========================================= */
+/* PAGE LAYOUTS                              */
+/* ========================================= */
+#login-page {
+    height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: radial-gradient(circle, #16213e 0%, #0f3460 100%); padding: 20px;
+}
+#game-title { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 50px; text-shadow: 0 0 10px #e94560, 0 0 20px #e94560; letter-spacing: 5px; text-align: center; }
+.menu-buttons { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 300px; }
+
+#main-ui, #deck-editor-page { height: 100%; display: flex; flex-direction: column; padding: clamp(15px, 3vw, 30px); background-color: #16213e; }
+#ui-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 2px solid #0f3460; gap: 10px;}
+#ui-header h2 { font-size: clamp(1.2rem, 3vw, 1.5rem); text-align: center; flex: 1; }
+#ui-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; width: 100%; }
+
+/* ========================================= */
+/* DECK EDITOR STYLES                        */
+/* ========================================= */
+.editor-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-top: 10px; }
+.editor-section h3 { margin-bottom: 10px; color: #bdc3c7; font-size: 1rem; text-align: center; }
+.editor-grid {
+    flex: 1; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start;
+    overflow-y: auto; padding-right: 10px; justify-content: center;
+}
+.collection-locked .card { filter: grayscale(100%) brightness(50%); pointer-events: none; border-color: #333; box-shadow: none; }
+
+/* ========================================= */
+/* GAMEPLAY PAGE & KARTU                     */
+/* ========================================= */
+#gameplay-page {
+    height: 100%; display: flex; flex-direction: column; justify-content: space-between;
+    background: #0f0f1a; padding: 10px; position: relative; overflow-y: auto; 
+}
+.back-btn-anchor { position: absolute; top: 10px; left: 10px; z-index: 10; padding: 5px 15px; font-size: 0.8rem; }
+.stats-box { text-align: center; font-size: clamp(0.9rem, 2vw, 1.2rem); font-weight: bold; margin: 5px 0; color: #e94560; text-shadow: 0 0 5px rgba(233, 69, 96, 0.5); }
+.card-zone { display: flex; justify-content: center; align-items: center; gap: 10px; min-height: 140px; padding: 5px; flex-wrap: wrap; }
+.table-divider { height: 2px; background: rgba(255, 255, 255, 0.1); margin: 5px 10%; border-radius: 5px; }
+
+.phase-control-area { text-align: center; margin: 10px 0; }
+
+/* Tangan (Scrollable untuk Mobile) */
+#player-hand-section, #enemy-hand-section { display: flex; justify-content: center; align-items: center; width: 100%; }
+#player-hand, #enemy-hand { 
+    display: flex; gap: 10px; margin-top: 5px; flex-wrap: nowrap; overflow-x: auto; 
+    padding: 10px 5px; width: 100%; max-width: 100vw; -webkit-overflow-scrolling: touch; 
+    /* Responsif: Di PC di tengah, di HP geser dari kiri */
+    justify-content: flex-start; 
+}
+
+/* Biar di PC tangannya tetap di tengah */
+@media (min-width: 769px) { #player-hand, #enemy-hand { justify-content: center; } }
+
+/* Desain Kartu Dinamis */
+.card {
+    width: clamp(80px, 15vw, 120px); height: clamp(120px, 22vw, 180px);
+    background: linear-gradient(135deg, #2a2a40, #16213e); border: 2px solid #4a4a6a; border-radius: 10px; padding: clamp(5px, 1vw, 10px);
+    display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: all 0.2s; user-select: none; flex-shrink: 0; 
+}
+.card:hover { transform: translateY(-10px); border-color: #e94560; box-shadow: 0 10px 20px rgba(233, 69, 96, 0.4); }
+
+.card-title { font-size: clamp(0.7rem, 1.5vw, 1rem); font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
+.card-type { font-size: clamp(0.5rem, 1vw, 0.75rem); color: #f39c12; text-align: center; margin-top: 5px; font-weight: bold; }
+.card-stats { display: flex; justify-content: space-between; font-size: clamp(0.7rem, 1.5vw, 0.9rem); font-weight: bold; }
+.cost { color: #3498db; }
+.damage { color: #e74c3c; }
+
+.mini-card { width: 75px; height: 110px; padding: 5px; }
+.played-card { transform: scale(0.9); border-color: #7f8c8d; box-shadow: none; cursor: pointer; }
+.played-card:hover { transform: scale(0.95); border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); }
+
+/* Cover Kartu Musuh */
+.card-back { background: repeating-linear-gradient(45deg, #16213e, #16213e 10px, #0f3460 10px, #0f3460 20px); border: 2px solid #e94560; cursor: default; }
+.card-back * { display: none !important; }
+.card-back::after { content: 'ENEMY'; display: flex; justify-content: center; align-items: center; height: 100%; color: rgba(233, 69, 96, 0.5); font-weight: bold; letter-spacing: 1px; font-size: clamp(0.8rem, 2vw, 1.2rem); }
+.card-back:hover { transform: none; box-shadow: none; border-color: #e94560; }
+
+/* ========================================= */
+/* BANNER TRANSISI FASE                      */
+/* ========================================= */
+.phase-text { color: #f1c40f; font-size: clamp(0.8rem, 2vw, 1.1rem); font-weight: bold; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase; }
+
+#phase-banner {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; background: rgba(0, 0, 0, 0.85);
+    color: #f1c40f; text-align: center; padding: clamp(20px, 4vw, 40px) 0; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; letter-spacing: clamp(5px, 2vw, 10px);
+    z-index: 999; border-top: 4px solid #f1c40f; border-bottom: 4px solid #f1c40f; text-shadow: 0 0 20px #f1c40f; transition: opacity 0.5s ease; pointer-events: none;
+    display: flex; justify-content: center; align-items: center;
+}
+.phase-banner-hidden { opacity: 0; visibility: hidden; }
+.phase-banner-active { opacity: 1; visibility: visible; animation: bannerSlide 1.5s ease-in-out forwards; }
+
+@keyframes bannerSlide {
+    0% { transform: translate(-50%, -50%) scaleX(0); opacity: 0; }
+    20% { transform: translate(-50%, -50%) scaleX(1); opacity: 1; }
+    80% { transform: translate(-50%, -50%) scaleX(1); opacity: 1; }
+}
+
+/* ========================================= */
+/* ENEMY GALLERY                             */
+/* ========================================= */
+.gallery-grid {
+    display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; padding: 20px;
+}
+.gallery-card {
+    width: 150px; background: #2a2a40; border: 2px solid #4a4a6a; border-radius: 10px;
+    padding: 10px; text-align: center; cursor: pointer; transition: all 0.3s;
+}
+.gallery-card img {
+    width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #16213e; aspect-ratio: 1; object-fit: cover;
+}
+.gallery-card .gallery-name {
+    font-weight: bold; color: #fff;
+}
+.gallery-card:hover:not(.locked-enemy) {
+    transform: translateY(-5px); border-color: #9b59b6; box-shadow: 0 5px 15px rgba(155, 89, 182, 0.5);
+}
+.locked-enemy {
+    filter: grayscale(100%) brightness(0.4); pointer-events: none;
+}
+
+/* Modal Gallery */
+#gallery-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+    display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.modal-content {
+    background: #16213e; border: 2px solid #9b59b6; border-radius: 10px; padding: 20px;
+    width: 300px; text-align: center; position: relative;
+}
+.modal-content img {
+    width: 100%; border-radius: 8px; margin-bottom: 15px; aspect-ratio: 1; object-fit: cover;
+}
+.close-modal {
+    position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #bdc3c7;
+}
+.close-modal:hover { color: #fff; }
+
+/* RGB Animation */
+@keyframes rgb-glow {
+    0% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+    33% { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+    66% { color: #0000ff; text-shadow: 0 0 10px #0000ff; }
+    100% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+}
+.rgb-text {
+    animation: rgb-glow 2s linear infinite;
+}
