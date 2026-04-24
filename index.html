@@ -32,6 +32,8 @@
             <button class="game-btn" id="btn-go-battle">Find Battle!</button>
             <button class="game-btn" id="btn-open-deck-editor"
                 style="background: linear-gradient(45deg, #2980b9, #2c3e50);">Deck Editor</button>
+            <button class="game-btn" id="btn-open-gallery"
+                style="background: linear-gradient(45deg, #8e44ad, #9b59b6);">Enemy Gallery</button>
         </div>
     </div>
 
@@ -88,6 +90,28 @@
         </div>
     </div>
 
+    <div id="gallery-page" class="hidden">
+        <div id="ui-header">
+            <button class="game-btn" id="btn-back-from-gallery" style="padding: 5px 15px; font-size: 0.8rem;">Back</button>
+            <h2>Enemy Gallery</h2>
+        </div>
+        <div class="editor-section" style="max-height: 80vh; overflow-y: auto;">
+            <div id="gallery-grid" class="gallery-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal untuk Detail Musuh -->
+    <div id="gallery-modal" class="hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEnemyDetails()">&times;</span>
+            <img id="modal-img" src="" alt="Enemy Image">
+            <h2 id="modal-name">Enemy Name</h2>
+            <div id="modal-hp" style="color: #e74c3c; font-weight: bold; margin-bottom: 10px;">HP: ?</div>
+            <p id="modal-desc">Description</p>
+        </div>
+    </div>
+
+    <script src="gallery.js"></script>
     <script src="script.js"></script>
 </body>
 

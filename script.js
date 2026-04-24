@@ -56,14 +56,6 @@ GLOBAL_DATABASE.forEach(card => {
     }
 });
 
-const ENEMIES_DB = [
-    { name: "Gifa", hp: 100, desc: "Debuff: Pemain kehilangan 5 Mana di awal pertarungan." },
-    { name: "Daft", hp: 100, desc: "Buff: Serangan musuh memiliki 20% ekstra Damage." },
-    { name: "Venox", hp: 100, desc: "Debuff: Pemain terkena Poison, kehilangan 5 HP tiap awal turn." },
-    { name: "Aegis", hp: 120, desc: "Buff: Memiliki Shield, menerima 50% lebih sedikit Damage." },
-    { name: "Sylph", hp: 80, desc: "Buff: Regen 10 HP di setiap akhir giliran musuh." }
-];
-
 let currentEnemy = null;
 let manaDebuff = 0;
 
@@ -190,6 +182,7 @@ function announcePhase(text, callback) {
 function startPlayerTurnSequence() {
     isPlayerTurn = true;
     currentMana = maxMana;
+    hasAttackedOnce = false; // Reset attack state di awal turn
 
     if (currentEnemy && currentEnemy.name === "Venox") {
         playerHP -= 5;
@@ -280,72 +273,75 @@ function cancelCard(cardData, cardElement) {
 // =========================================
 // 8. LOGIKA STATE MACHINE TOMBOL FASE (AUTO-END)
 // =========================================
-function executeAttackLogic() {
-    let totalDamage = 0;
-
-    // Semua kartu menyerang
-    cardsOnField.forEach(card => totalDamage += card.damage);
-
-    // LOGIKA PENGECEKAN KARTU DOUBLE ATTACK
-    // Sesuai permintaan, double attack hanya muncul jika SEMUA kartu memiliki double attack
-    const allHaveDoubleAttack = cardsOnField.length > 0 && cardsOnField.every(card => card.doubleAttack);
-
-    if (allHaveDoubleAttack) {
-        // Serangan kedua otomatis
-        cardsOnField.forEach(card => totalDamage += card.damage);
-    }
-
-    // Kalkulasi buff musuh
-    if (currentEnemy && currentEnemy.name === "Aegis") {
-        totalDamage = Math.floor(totalDamage * 0.5);
-    }
-
-    enemyHP -= totalDamage;
-    if (enemyHP < 0) enemyHP = 0;
-    updateUI();
-
-    if (enemyHP <= 0) {
-        alert("KAMU MENANG!");
-        btnBackToUi.click();
-        return;
-    }
-
-    // AUTO END PHASE LALU OPER KE MUSUH
-    announcePhase("END PHASE", () => {
-        currentPhase = 'END';
-        phaseIndicator.innerText = "PHASE: END PHASE";
-        phaseIndicator.style.color = "#95a5a6";
-
-        btnPhaseAction.disabled = true;
-        btnPhaseAction.innerText = "Auto Ending...";
-
-        playerFieldDiv.innerHTML = '';
-        cardsOnField = [];
-
-        // Otomatis jalanin turn musuh setelah jeda super singkat
-        setTimeout(() => {
-            startEnemyTurnSequence();
-        }, 500); 
-    });
-}
-
 btnPhaseAction.addEventListener('click', () => {
     if (!isPlayerTurn) return;
 
     if (currentPhase === 'MAIN') {
-        btnPhaseAction.disabled = true;
-        btnPhaseAction.innerText = "Entering Battle...";
-        
         announcePhase("BATTLE PHASE", () => {
             currentPhase = 'BATTLE';
             phaseIndicator.innerText = "PHASE: BATTLE PHASE";
             phaseIndicator.style.color = "#e74c3c";
 
-            // Langsung eksekusi attack secara otomatis setelah jeda singkat
-            setTimeout(() => {
-                executeAttackLogic();
-            }, 500);
+            btnPhaseAction.disabled = false;
+            // Ubah teks kalau meja kosong (langsung skip turn)
+            btnPhaseAction.innerText = (cardsOnField.length > 0) ? "Execute Attack!" : "Skip Battle (Auto End)";
         });
+    }
+    else if (currentPhase === 'BATTLE') {
+        let totalDamage = 0;
+
+        // KALKULASI DAMAGE BERDASARKAN ATTACK KE BERAPA
+        if (!hasAttackedOnce) {
+            // Serangan pertama: Semua kartu menyerang
+            cardsOnField.forEach(card => totalDamage += card.damage);
+        } else {
+            // Serangan kedua: HANYA kartu dengan doubleAttack yang menyumbang damage
+            cardsOnField.forEach(card => {
+                if (card.doubleAttack) totalDamage += card.damage;
+            });
+        }
+
+        // Kalkulasi buff musuh
+        if (currentEnemy && currentEnemy.name === "Aegis") {
+            totalDamage = Math.floor(totalDamage * 0.5);
+        }
+
+        enemyHP -= totalDamage;
+        if (enemyHP < 0) enemyHP = 0;
+        updateUI();
+
+        if (enemyHP <= 0) {
+            alert("KAMU MENANG!");
+            btnBackToUi.click();
+            return;
+        }
+
+        // LOGIKA PENGECEKAN KARTU DOUBLE ATTACK
+        const hasDoubleAttackCard = cardsOnField.some(card => card.doubleAttack);
+
+        if (hasDoubleAttackCard && !hasAttackedOnce) {
+            // Kalau ada kartu double attack dan baru nyerang 1x, tahan di Battle Phase
+            hasAttackedOnce = true;
+            btnPhaseAction.innerText = "Execute 2nd Attack!";
+        } else {
+            // AUTO END PHASE LALU OPER KE MUSUH
+            announcePhase("END PHASE", () => {
+                currentPhase = 'END';
+                phaseIndicator.innerText = "PHASE: END PHASE";
+                phaseIndicator.style.color = "#95a5a6";
+
+                btnPhaseAction.disabled = true;
+                btnPhaseAction.innerText = "Auto Ending...";
+
+                playerFieldDiv.innerHTML = '';
+                cardsOnField = [];
+
+                // Otomatis jalanin turn musuh setelah jeda super singkat
+                setTimeout(() => {
+                    startEnemyTurnSequence();
+                }, 500); 
+            });
+        }
     }
 });
 
@@ -461,6 +457,21 @@ btnOpenDeckEditor.addEventListener('click', () => {
     renderDeckEditor();
 });
 
+const btnOpenGallery = document.getElementById('btn-open-gallery');
+if (btnOpenGallery) {
+    btnOpenGallery.addEventListener('click', () => {
+        showScreen(document.getElementById('gallery-page'));
+        renderGallery();
+    });
+}
+
+const btnBackFromGallery = document.getElementById('btn-back-from-gallery');
+if (btnBackFromGallery) {
+    btnBackFromGallery.addEventListener('click', () => {
+        showScreen(mainUi);
+    });
+}
+
 btnBackFromDeck.addEventListener('click', () => {
     showScreen(mainUi);
 });
@@ -478,7 +489,19 @@ btnGoBattle.addEventListener('click', () => {
     showScreen(gameplayPage);
 
     currentEnemy = ENEMIES_DB[Math.floor(Math.random() * ENEMIES_DB.length)];
-    document.getElementById('enemy-name').innerText = currentEnemy.name;
+    
+    const enemyNameEl = document.getElementById('enemy-name');
+    enemyNameEl.innerText = currentEnemy.name;
+    
+    if (typeof isEnemyUnlocked === 'function') {
+        if (!isEnemyUnlocked(currentEnemy.name)) {
+            enemyNameEl.classList.add('rgb-text');
+            unlockEnemy(currentEnemy.name);
+        } else {
+            enemyNameEl.classList.remove('rgb-text');
+        }
+    }
+
     document.getElementById('enemy-desc').innerText = currentEnemy.desc;
 
     playerHP = maxPlayerHP;
